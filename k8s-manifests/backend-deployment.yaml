@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 2  # 2 instances pour la scalabilité
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: backend:v1
+        imagePullPolicy: Never  # Pour Minikube (image locale)
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DB_HOST
+          value: "host.docker.internal"  # Nom du service PostgreSQL
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "salma123"
+        - name: DB_NAME
+          value: "appdb_devops"
+        - name: DB_PORT
+          value: "5432"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
