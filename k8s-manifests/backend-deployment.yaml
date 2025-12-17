@@ -14,27 +14,42 @@ spec:
     spec:
       containers:
       - name: backend
-        image: backend:v1
-        imagePullPolicy: Never  # Pour Minikube (image locale)
+        image: your-dockerhub-username/3tier-backend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
         - name: DB_HOST
-          value: "host.docker.internal"  # Nom du service PostgreSQL
+          value: "postgres-service"
         - name: DB_USER
-          value: "postgres"
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_USER
         - name: DB_PASSWORD
-          value: "salma123"
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
         - name: DB_NAME
-          value: "appdb_devops"
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_DB
         - name: DB_PORT
           value: "5432"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /health
             port: 5000
           initialDelaySeconds: 30
-          periodSeconds: 10
+          periodSeconds: 30
         resources:
           requests:
             memory: "128Mi"

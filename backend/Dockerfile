@@ -1,18 +1,32 @@
-# Étape 1 : Utiliser une image Node.js officielle comme base
+# Use Node.js 18 Alpine for smaller image size
 FROM node:18-alpine
 
-# Étape 2 : Définir le répertoire de travail dans le conteneur
+# Create app directory and set as working directory
 WORKDIR /app
 
-# Étape 3 : Copier les fichiers du projet
-COPY package.json .
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy application code
 COPY server.js .
 
-# Étape 4 : Installer les dépendances
-RUN npm install
+# Change ownership to nodejs user
+RUN chown -R nodejs:nodejs /app
+USER nodejs
 
-# Étape 5 : Exposer le port que l'app utilise
+# Expose port
 EXPOSE 5000
 
-# Étape 6 : Commande pour démarrer l'app
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start the application
 CMD ["npm", "start"]

@@ -14,10 +14,22 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: frontend:v1
-        imagePullPolicy: Never  # Pour Minikube
+        image: your-dockerhub-username/3tier-frontend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 30
         resources:
           requests:
             memory: "128Mi"
