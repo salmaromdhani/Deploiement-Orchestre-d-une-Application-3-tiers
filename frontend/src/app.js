@@ -50,7 +50,7 @@ export default function App() {
       <h1> App DevOps 3-tiers</h1>
 
       <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
-        <p><strong>Frontend :</strong> React</p>
+        <p><strong>Frontend test :</strong> React</p>
         <p><strong>Backend :</strong> Node.js</p>
         <p><strong>Base de données :</strong> PostgreSQL</p>
       </div>
